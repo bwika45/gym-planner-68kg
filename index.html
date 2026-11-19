@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gym planner</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#12202E">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EDF1;--card:#fff;--ink:#12202E;--mute:#5B6B7B;--line:#D3DAE2;--up:#2450E6;--lo:#0B8F7A;--upbg:#E3EAFF;--lobg:#DDF3EE;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F161D;--card:#17212B;--ink:#E8EEF4;--mute:#93A3B3;--line:#26333F;--up:#8FA9FF;--lo:#4FD1B8;--upbg:#1B2850;--lobg:#12342E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F161D;--card:#17212B;--ink:#E8EEF4;--mute:#93A3B3;--line:#26333F;--up:#8FA9FF;--lo:#4FD1B8;--upbg:#1B2850;--lobg:#12342E;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.5}
+main{max-width:520px;margin:0 auto;padding:16px 14px 32px}
+h1{font-family:"Barlow Condensed",Impact,sans-serif;font-weight:700;font-size:30px;margin:0 0 2px;letter-spacing:.2px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:14px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.nav b{font-weight:600;font-size:15px}
+button{font:inherit;color:inherit;cursor:pointer}
+.arrow{width:44px;height:36px;border:1px solid var(--line);background:var(--card);border-radius:8px;font-size:18px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-bottom:16px}
+.day{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 0 6px;text-align:center;min-height:62px}
+.day small{display:block;color:var(--mute);font-size:12px}
+.day span{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;line-height:1.2}
+.dot{display:block;width:6px;height:6px;border-radius:50%;margin:3px auto 0;background:var(--line)}
+.dot.u{background:var(--up)}.dot.l{background:var(--lo)}
+.day.sel{border:2px solid var(--ink)}
+.day.today small{color:var(--ink);font-weight:600}
+.day.done{background:var(--lobg)}
+.head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 4px}
+h2{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px;margin:0}
+.badge{font-size:13px;font-weight:600;padding:2px 10px;border-radius:8px}
+.badge.u{background:var(--upbg);color:var(--up)}.badge.l{background:var(--lobg);color:var(--lo)}
+.prog{color:var(--mute);font-size:14px;margin:0 0 10px}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.chk{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);background:transparent;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;color:#fff;padding:0}
+.chk.on{background:var(--lo);border-color:var(--lo)}
+.name{flex:1;text-align:left;background:none;border:0;padding:4px 0;min-height:40px}
+.name b{display:block;font-weight:600;font-size:16px}
+.name span{color:var(--mute);font-size:13px}
+.sets{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:19px;white-space:nowrap}
+.how{padding:6px 14px 14px;border-top:1px dashed var(--line);font-size:15px}
+.how ol{margin:10px 0;padding-left:20px}
+.how li{margin-bottom:4px}
+.how a{color:var(--up);font-weight:600}
+.rest{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.rest p{margin:6px 0 0;color:var(--mute)}
+.fig{display:flex;gap:8px;--hl:#E5484D}.fig figure{flex:1;margin:0;text-align:center;background:var(--bg);border-radius:10px;padding:6px 4px 4px}.fig svg{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}.fig figcaption{font-size:13px;font-weight:600;color:var(--mute)}.side{font-size:12px;color:var(--mute);margin:6px 0 0}
+.tip{font-size:13px;color:var(--mute);margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>Gym planner</h1>
+<p class="sub">Upper and lower split, 4 days a week. Tap an exercise to see how it’s done.</p>
+<div class="nav"><button class="arrow" id="prev" aria-label="Previous week">‹</button><b id="range"></b><button class="arrow" id="next" aria-label="Next week">›</button></div>
+<div class="week" id="week"></div>
+<div id="day"></div>
+<p class="tip">Rest 2–3 minutes after heavy lifts, 60–90 seconds after smaller ones. Stop each set 1–2 reps before failure.</p>
+</main>
+<script>
+var E={
+bench:["Bench press","Chest, triceps",["Lie flat, feet planted, shoulder blades pinched back.","Lower the bar to mid-chest, elbows about 45° from your body.","Press up until your arms are straight. Use a spotter or safety bars."]],
+row:["Barbell row","Back, biceps",["Hinge forward with a flat back and slightly bent knees.","Pull the bar to your lower ribs, squeezing your shoulder blades.","Lower slowly without rounding your back."]],
+ohp:["Overhead press","Shoulders, triceps",["Hold the bar at shoulder height with your core tight.","Press straight up, moving your head slightly forward at the top.","Lower back to your shoulders under control."]],
+pulldown:["Lat pulldown","Back, biceps",["Grip slightly wider than your shoulders and lean back a little.","Pull the bar to your upper chest, driving your elbows down.","Let it rise slowly until your arms are straight."]],
+pushdown:["Triceps pushdown","Triceps",["Pin your elbows to your sides and grip the bar or rope.","Push down until your arms are fully straight.","Return slowly to about 90° at the elbow."]],
+curl:["Biceps curl","Biceps",["Stand tall with your elbows at your sides.","Curl the weight up without swinging your body.","Lower slowly over about 2 seconds."]],
+squat:["Squat","Quads, glutes",["Bar on your upper back, feet shoulder-width, toes slightly out.","Sit down and back until your thighs are parallel or lower.","Drive through your whole foot to stand, chest up."]],
+rdl:["Romanian deadlift","Hamstrings, glutes",["Hold the bar at your thighs with slightly bent knees.","Push your hips back, sliding the bar down your legs, back flat.","Stop at mid-shin, then squeeze your glutes to stand."]],
+legpress:["Leg press","Quads, glutes",["Feet shoulder-width on the middle of the platform, back flat on the pad.","Lower until your knees are about 90°.","Press up without locking your knees."]],
+legcurl:["Leg curl","Hamstrings",["Set the pad just above your heels.","Curl your heels toward your glutes.","Lower slowly and keep your hips on the pad."]],
+calf:["Standing calf raise","Calves",["Balls of your feet on a step or machine, heels hanging.","Rise as high as you can and pause at the top.","Lower into a deep stretch."]],
+incline:["Incline dumbbell press","Upper chest, shoulders",["Set the bench to 30–45° with dumbbells at chest level.","Press up and slightly together over your upper chest.","Lower slowly until you feel a chest stretch."]],
+pullup:["Pull-ups","Back, biceps",["Hang with your hands just wider than your shoulders.","Pull until your chin passes the bar, chest up.","Lower fully under control. Use an assisted machine or band if needed."]],
+sdp:["Seated dumbbell press","Shoulders, triceps",["Sit with your back supported, dumbbells at shoulder height.","Press overhead until your arms are straight.","Lower to ear level slowly."]],
+cablerow:["Seated cable row","Back, biceps",["Sit tall with slightly bent knees and grip the handle.","Pull to your belly button, squeezing your shoulder blades.","Return slowly without leaning far forward."]],
+lateral:["Lateral raises","Side shoulders",["Hold light dumbbells at your sides with a slight elbow bend.","Raise your arms out to shoulder height.","Lower slowly and don’t swing."]],
+facepull:["Face pulls","Rear shoulders, upper back",["Set the cable at face height with a rope.","Pull toward your face, elbows high and wide.","Squeeze your rear shoulders, then return slowly."]],
+deadlift:["Deadlift","Back, glutes, hamstrings",["Bar over mid-foot, hips back, grip just outside your knees.","Brace your core, push the floor away and keep the bar close.","Stand tall, then lower by pushing your hips back first."]],
+lunge:["Walking lunges","Quads, glutes",["Step forward with a long stride and an upright torso.","Lower until both knees are about 90°.","Push through your front foot into the next step."]],
+thrust:["Hip thrust","Glutes",["Rest your upper back on a bench with the weight on your hips.","Drive up until your body is straight from shoulders to knees.","Squeeze your glutes for a second, then lower slowly."]],
+legext:["Leg extension","Quads",["Pad on your lower shins, back against the seat.","Extend your legs until straight and squeeze your quads.","Lower slowly."]],
+plank:["Plank","Core",["Forearms on the floor, elbows under your shoulders.","Keep your body in a straight line, abs and glutes tight.","Breathe steadily and don’t let your hips sag."]]
+};
+var P={
+0:{t:"Upper A",k:"u",ex:[["bench","4 × 6–8"],["row","4 × 8"],["ohp","3 × 8–10"],["pulldown","3 × 10"],["pushdown","3 × 12"],["curl","3 × 12"]]},
+1:{t:"Lower A",k:"l",ex:[["squat","4 × 6–8"],["rdl","3 × 8–10"],["legpress","3 × 10–12"],["legcurl","3 × 12"],["calf","4 × 12–15"]]},
+3:{t:"Upper B",k:"u",ex:[["incline","4 × 8–10"],["pullup","4 × 6–10"],["sdp","3 × 10"],["cablerow","3 × 10–12"],["lateral","3 × 15"],["facepull","3 × 15"]]},
+4:{t:"Lower B",k:"l",ex:[["deadlift","3 × 5"],["lunge","3 × 10 each"],["thrust","3 × 10"],["legext","3 × 12"],["calf","3 × 15"],["plank","3 × 45 s"]]}
+};
+var BN=[[8,69,34,69],[10,69,10,76],[32,69,32,76]],BP=[[10,67,80,67],[14,67,14,76],[76,67,76,76]],LP=[[44,78,72,78]],SB=[[34,38,34,76],[34,76,62,76]],LG=[[8,69,34,69],[10,69,10,95],[32,69,32,95]];
+var D={
+bench:["ch",[30,62,90,100,0,300,185,1,BP,76],[30,62,90,0,0,300,185,1,BP,76]],
+row:["bk",[45,50,60,180,180,170,190,1],[45,50,60,250,170,170,190,1]],
+ohp:["sh",[50,50,0,170,10,180,180,1],[50,50,0,0,0,180,180,1]],
+pulldown:["bk",[60,75,345,0,0,90,180,1,LP.concat([[52,-20,52,11]])],[60,75,345,200,0,90,180,1,LP.concat([[46,-20,46,46]])]],
+pushdown:["ar",[50,50,0,180,90,180,180,1,[[67,-20,67,38]]],[50,50,0,180,180,180,180,1,[[50,-20,50,55]]]],
+curl:["ar",[50,50,0,180,180,180,180,1],[50,50,0,180,15,180,180,1]],
+squat:["th",[50,50,0,170,10,180,180,2],[41,79,25,170,10,75,200,2]],
+rdl:["th",[50,50,0,180,180,180,180,1],[42,50,70,180,180,175,185,1]],
+legpress:["th",[30,70,300,180,180,30,100,0,[[66,45,66,65],[4,55,28,74]]],[30,70,300,180,180,50,50,0,[[67,32,67,52],[4,55,28,74]]]],
+legcurl:["th",[55,64,90,180,180,270,270,0,[[22,69,92,69]]],[55,64,90,180,180,270,30,0,[[22,69,92,69]]]],
+calf:["cf",[50,50,0,180,180,180,180,1,[[36,95,64,95]]],[50,43,0,180,180,180,180,1,[[36,95,64,95]]]],
+incline:["ch",[30,70,325,125,55,90,190,1,[[6,52,32,72]]],[30,70,325,55,55,90,190,1,[[6,52,32,72]]]],
+pullup:["bk",[50,57,0,0,0,185,185,0,[[34,-8,66,-8]],0],[50,34,0,295,75,185,185,0,[[34,-8,66,-8]],0]],
+sdp:["sh",[45,70,0,170,0,90,180,1,SB],[45,70,0,0,0,90,180,1,SB]],
+cablerow:["bk",[50,75,10,90,90,80,190,1,[[90,46,118,46],[34,78,62,78]]],[50,75,355,250,90,80,190,1,[[47,51,118,51],[34,78,62,78]]]],
+lateral:["sh",[50,50,0,180,180,180,180,1],[50,50,0,90,90,180,180,1]],
+facepull:["sh",[50,50,0,90,90,180,180,0,[[85,20,118,20]]],[50,50,0,265,75,180,180,0,[[48,17,118,20]]]],
+deadlift:["gl",[36,75,50,180,180,85,200,1],[50,50,0,180,180,180,180,1]],
+lunge:["th",[50,50,0,180,180,180,180,1],[50,73,0,180,180,90,180,1,[[50,73,36,92,1],[36,92,20,92,1]]]],
+thrust:["gl",[45,80,304,180,180,60,170,3,LG],[50,70,275,180,180,70,185,3,LG]],
+legext:["th",[45,70,0,180,180,90,180,0,SB],[45,70,0,180,180,90,90,0,SB]],
+plank:["ab",[57,80,75,180,90,255,255,0,[],95]]
+};
+function pt(o,a,l){a=a*Math.PI/180;return[o[0]+l*Math.sin(a),o[1]-l*Math.cos(a)]}
+function pose(p,hl){var hip=[p[0],p[1]],nk=pt(hip,p[2],30),hd=pt(nk,p[2],9),el=pt(nk,p[3],18),wr=pt(el,p[4],17),kn=pt(hip,p[5],22),an=pt(kn,p[6],22),f=p[9]===undefined?95:p[9],s="";
+if(f)s+='<line x1="4" y1="'+f+'" x2="116" y2="'+f+'" stroke="var(--line)" stroke-width="2"/>';
+(p[8]||[]).forEach(function(l){s+='<line x1="'+l[0]+'" y1="'+l[1]+'" x2="'+l[2]+'" y2="'+l[3]+'" stroke="'+(l[4]?"var(--ink)":"var(--mute)")+'" stroke-width="'+(l[4]?3.5:2)+'" stroke-linecap="round"/>'});
+var m={sh:nk,ch:pt(hip,p[2],24),bk:pt(hip,p[2],18),ab:pt(hip,p[2],12),ar:pt(nk,p[3],9),th:pt(hip,p[5],11),gl:hip,cf:pt(kn,p[6],11)}[hl];
+function L(a){return a.map(function(q){return q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ")}
+s+='<g fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="'+L([hip,nk])+'"/><polyline points="'+L([nk,el,wr])+'"/><polyline points="'+L([hip,kn,an,[an[0]+7,an[1]]])+'"/></g>';
+s+='<circle cx="'+m[0].toFixed(1)+'" cy="'+m[1].toFixed(1)+'" r="7" fill="var(--hl)" opacity=".7"/>';
+s+='<circle cx="'+hd[0].toFixed(1)+'" cy="'+hd[1].toFixed(1)+'" r="6" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>';
+var w=p[7]===1?wr:p[7]===2?nk:p[7]===3?hip:null;
+if(w)s+='<circle cx="'+w[0].toFixed(1)+'" cy="'+w[1].toFixed(1)+'" r="5" fill="var(--ink)"/>';
+return s}
+function fig(id){var d=D[id],h="",i;if(!d)return"";
+for(i=1;i<d.length;i++)h+='<figure><svg viewBox="0 -20 120 120" role="img" aria-label="'+E[id][0]+(d.length>2?(i===1?" start position":" end position"):" hold position")+'">'+pose(d[i],d[0])+'</svg><figcaption>'+(d.length>2?(i===1?"Start":"End"):"Hold")+'</figcaption></figure>';
+return'<div class="fig">'+h+'</div><p class="side">Side view. The red spot marks the muscle doing the work.</p>'}
+var R={bench:"2–3 min",row:"2 min",ohp:"2 min",pulldown:"90 sec",pushdown:"60 sec",curl:"60 sec",squat:"2–3 min",rdl:"2 min",legpress:"90 sec",legcurl:"60 sec",calf:"60 sec",incline:"2 min",pullup:"2 min",sdp:"90 sec",cablerow:"90 sec",lateral:"60 sec",facepull:"60 sec",deadlift:"3 min",lunge:"90 sec",thrust:"2 min",legext:"60 sec",plank:"45 sec"};
+var DN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var done={},open=null,today=new Date();
+try{done=JSON.parse(localStorage.getItem("gymdone")||"{}")||{}}catch(e){done={}}
+function save(){try{localStorage.setItem("gymdone",JSON.stringify(done))}catch(e){}}
+function key(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function mon(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+var sel=new Date(today.getFullYear(),today.getMonth(),today.getDate()),ws=mon(sel);
+function count(d){var p=P[d.getDay()];if(!p)return[0,0];var n=0;p.ex.forEach(function(e,i){if(done[key(d)+":"+i])n++});return[n,p.ex.length]}
+function render(){
+var h="",i,d,p,c;
+for(i=0;i<7;i++){d=new Date(ws);d.setDate(ws.getDate()+i);p=P[d.getDay()];c=count(d);
+h+='<button class="day'+(key(d)===key(sel)?" sel":"")+(key(d)===key(today)?" today":"")+(p&&c[0]===c[1]?" done":"")+'" data-d="'+i+'"><small>'+DN[d.getDay()]+'</small><span>'+d.getDate()+'</span><i class="dot '+(p?p.k:"")+'"></i></button>'}
+document.getElementById("week").innerHTML=h;
+var e=new Date(ws);e.setDate(ws.getDate()+6);
+document.getElementById("range").textContent=MN[ws.getMonth()]+" "+ws.getDate()+" – "+MN[e.getMonth()]+" "+e.getDate();
+p=P[sel.getDay()];var o="";
+if(!p){o='<div class="rest"><h2>Rest day</h2><p>Let your muscles rebuild. An easy walk is fine, and aim for 7–9 hours of sleep.</p></div>'}
+else{c=count(sel);o='<div class="head"><h2>'+p.t+'</h2><span class="badge '+p.k+'">'+(p.k==="u"?"Upper body":"Lower body")+'</span></div><p class="prog">'+c[0]+' of '+c[1]+' exercises done</p>';
+p.ex.forEach(function(x,j){var ex=E[x[0]],id=key(sel)+":"+j,on=done[id],op=open===id;
+o+='<div class="ex"><div class="row"><button class="chk'+(on?" on":"")+'" data-c="'+id+'" aria-label="Mark '+ex[0]+' done">'+(on?"✓":"")+'</button><button class="name" data-o="'+id+'"><b>'+ex[0]+'</b><span>'+ex[1]+' · Rest '+R[x[0]]+'</span></button><span class="sets">'+x[1]+'</span></div>';
+if(op){o+='<div class="how">'+fig(x[0])+'<ol>'+ex[2].map(function(s){return"<li>"+s+"</li>"}).join("")+'</ol></div>'}
+o+="</div>"})}
+document.getElementById("day").innerHTML=o}
+document.addEventListener("click",function(ev){
+var t=ev.target.closest("button");if(!t)return;
+if(t.id==="prev"){ws.setDate(ws.getDate()-7);sel=new Date(ws);open=null}
+else if(t.id==="next"){ws.setDate(ws.getDate()+7);sel=new Date(ws);open=null}
+else if(t.dataset.d){sel=new Date(ws);sel.setDate(ws.getDate()+Number(t.dataset.d));open=null}
+else if(t.dataset.c){if(done[t.dataset.c])delete done[t.dataset.c];else done[t.dataset.c]=1;save()}
+else if(t.dataset.o){open=open===t.dataset.o?null:t.dataset.o}
+else return;
+render()});
+render();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>
